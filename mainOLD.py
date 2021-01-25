@@ -3,8 +3,10 @@ import time
 
 pins = []
 
+
 def initialize():
     GPIO.setmode(GPIO.BCM)
+
 
 def createButton(channel):
     # the state can be '0' (if button pressed) or '1' (if button released)
@@ -15,7 +17,10 @@ def createButton(channel):
     # activate pull down for pin GPIO4
     GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+
 def startListening():
+    print(pins)
+
     while True:
         for i in range(len(pins)):
             # read the current button state by reading pin GPIO4 on the Raspberry PI
@@ -27,6 +32,7 @@ def startListening():
                     print(f"GPIO{pins[i][0]} button pressed")
                 pins[i][1] = curr_state
         time.sleep(0.02)
+
 
 if __name__ == "__main__":
     initialize()
