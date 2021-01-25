@@ -16,6 +16,7 @@ class Windgong:
         self.holdtime = None
         self.target = None
         self.holding = False
+        self.clockwise = True
 
         GPIO.setmode(GPIO.BCM)
     
@@ -46,10 +47,12 @@ class Windgong:
     
     def setLED(self, color):
         if color == "green":
+            self.clockwise = True
             GPIO.output(self.led_pins[0], GPIO.HIGH)
             GPIO.output(self.led_pins[1], GPIO.LOW)
             self.led_state = 2
         if color == "red":
+            self.clockwise = False
             GPIO.output(self.led_pins[1], GPIO.HIGH)
             GPIO.output(self.led_pins[0], GPIO.LOW)
             self.led_state = 1
@@ -108,12 +111,12 @@ class Windgong:
             curr_state = GPIO.input(self.button_pins[button]["channel"])
             if curr_state != self.button_pins[button]["state"]:
 
-                if curr_state == 1:
-                    print(f"button '{button}' has been released")
-                    # Add event
+                # if curr_state == 1:
+                #     print(f"button '{button}' has been released")
+                #     # Add event
 
-                if curr_state == 0:
-                    print(f"button '{button}' has been pressed")
+                # if curr_state == 0:
+                #     print(f"button '{button}' has been pressed")
                     
 
                 self.button_pins[button]["state"] = curr_state
@@ -124,68 +127,65 @@ class Windgong:
                 self.timeout = None
     
     def setTarget(self, color):
-        if color != self.target:
-            timeout_time = 1
-            hold_time = random.randint(2, 5) + timeout_time
-            self.timeout = time.time() + timeout_time
-            self.holdtime = time.time() + hold_time
-            self.setLED(color)
-
-            print(f"PRESS {color}")
+        self.timeout = time.time() + 1
+        self.setLED(color)
+        print(f"PRESS {color}")
     
     def gameLogic(self):
+        red_state = self.button_pins["rood"]["state"]
+        green_state = self.button_pins["groen"]["state"]
         # If the led is red
-        if self.led_state == 1:
-            self.rotateMotor(True)
-            if not self.timeout:
-                red_state = self.button_pins["rood"]["state"]
-                green_state = self.button_pins["groen"]["state"]
-
+        if self.timeout != None:
+            # red
+            if self.led_state == 1:
                 if red_state == 0 and green_state != 0:
-                    print("HOLD")
                     self.holding = True
-                    if time.time() > self.holdtime:
-                        self.setTarget("green")
-                        self.holding = False
-                else:
-                    if green_state == 0 and red_state == 0:
-                        print("Green was pressed aswell!")
-                    if red_state != 0 and self.holding == False:
-                        print("You were too late pressing the Red button")
-                    if red_state != 0 and self.holding == True:
-                        print("You released the Red button too early")
-
+                if green_state == 0:
+                    print("You pressed the wrong button")
                     self.running = False
 
-        # If the led is green
-        if self.led_state == 2:
-            self.rotateMotor(False)
-            if not self.timeout:
-                red_state = self.button_pins["rood"]["state"]
-                green_state = self.button_pins["groen"]["state"]
-
-                if green_state == 0 and red_state != 0:
-                    print("HOLD")
+            # green
+            if self.led_state == 2:
+                if red_state != 0 and green_state == 0:
                     self.holding = True
-                    if time.time() > self.holdtime:
-                        self.setTarget("red")
-                        self.holding = False
-                else:
-                    if green_state == 0 and red_state == 0:
-                        print("Red was pressed aswell!")
-                    if green_state != 0 and self.holding == False:
-                        print("You were too late pressing the Green button")
-                    if green_state != 0 and self.holding == True:
-                        print("You released the Green button too early")
-                        
+                if red_state == 0:
+                    print("You pressed the wrong button")
                     self.running = False
-    
+            
+            if self.holding:
+                self.timeout = None
+                self.holdtime = time.time() + random.randint(2, 5)
+                # Key Debounce Time of 500ms
+                self.debouncetime = time.time() + 0.5
+                self.setLED("off")
+
+
+        if self.timeout == None and self.holding:
+            if time.time() > self.holdtime:
+                color = ["green", "red"]
+                self.holdtime = None
+                self.setTarget(color[random.randint(0, 1)])
+                self.holding = False
+            else:
+                if time.time() > self.debouncetime:
+                    if red_state == 0 or green_state == 0:
+                        print("You pressed when the LED was off")
+                        self.running = False
+        
+        if self.timeout == None and not self.holding :
+            print("You were too late")
+            self.running = False
+        
+        self.rotateMotor(self.clockwise)
+
     def startGame(self):
         self.setTarget("green")
         while self.running:
             self.checkButton()
             self.gameLogic()
             self.checkTimeout()
+
+            # ~60 updates per second
             time.sleep(0.02)
         
         print("Game Ended")
