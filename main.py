@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import random
 
 class Windgong:
 
@@ -56,6 +57,8 @@ class Windgong:
             GPIO.output(self.led_pins[0], GPIO.HIGH)
             GPIO.output(self.led_pins[0], GPIO.LOW)
             self.led_state = 0
+
+        print(f"LED COLOR: {color}")
 
 
     """
@@ -122,11 +125,12 @@ class Windgong:
     
     def setTarget(self, color):
         if color != self.target:
-            timeout_time = 5
-            hold_time = 5 + timeout_time
+            timeout_time = 1
+            hold_time = random.randint(2, 5) + timeout_time
             self.timeout = time.time() + timeout_time
             self.holdtime = time.time() + hold_time
             self.setLED(color)
+
             print(f"PRESS {color}")
     
     def gameLogic(self):
@@ -177,7 +181,7 @@ class Windgong:
                     self.running = False
     
     def startGame(self):
-        self.setTarget("red")
+        self.setTarget("green")
         while self.running:
             self.checkButton()
             self.gameLogic()
