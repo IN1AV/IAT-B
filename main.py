@@ -14,6 +14,7 @@ class Windgong:
         self.timeout = None
         self.holdtime = None
         self.target = None
+        self.holding = False
 
         GPIO.setmode(GPIO.BCM)
     
@@ -133,27 +134,47 @@ class Windgong:
         if self.led_state == 1:
             self.rotateMotor(True)
             if not self.timeout:
-                if self.button_pins["rood"]["state"] == 0 and self.button_pins["groen"]["state"] != 0:
+                red_state = self.button_pins["rood"]["state"]
+                green_state = self.button_pins["groen"]["state"]
+
+                if red_state == 0 and green_state != 0:
                     print("HOLD")
+                    self.holding = True
                     if time.time() > self.holdtime:
                         self.setTarget("green")
+                        self.holding = False
                 else:
-                    print("Too late / Released too soon")
+                    if green_state == 0 and red_state == 0:
+                        print("Green was pressed aswell!")
+                    if red_state != 0 and self.holding == False:
+                        print("You were too late pressing the Red button")
+                    if red_state != 0 and self.holding == True:
+                        print("You released the Red button too early")
+
                     self.running = False
 
         # If the led is green
         if self.led_state == 2:
             self.rotateMotor(False)
             if not self.timeout:
-                if self.button_pins["groen"]["state"] == 0 and self.button_pins["rood"]["state"] != 0:
+                red_state = self.button_pins["rood"]["state"]
+                green_state = self.button_pins["groen"]["state"]
+
+                if green_state == 0 and red_state != 0:
                     print("HOLD")
+                    self.holding = True
                     if time.time() > self.holdtime:
                         self.setTarget("red")
+                        self.holding = False
                 else:
-                    print("Too late / Released too soon")
+                    if green_state == 0 and red_state == 0:
+                        print("Red was pressed aswell!")
+                    if green_state != 0 and self.holding == False:
+                        print("You were too late pressing the Green button")
+                    if green_state != 0 and self.holding == True:
+                        print("You released the Green button too early")
+                        
                     self.running = False
-
-        return
     
     def startGame(self):
         self.setTarget("red")
