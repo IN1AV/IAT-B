@@ -22,9 +22,9 @@ def startListening():
             curr_state = GPIO.input(pins[i][0])
             if curr_state != pins[i][1]:
                 if curr_state == 1:
-                    print(f"GPIO{channel} button released")
+                    print(f"GPIO{pins[i][0]} button released")
                 if curr_state == 0:
-                    print(f"GPIO{channel} button pressed")
+                    print(f"GPIO{pins[i][0]} button pressed")
                 pins[i][1] = curr_state
         time.sleep(0.02)
 
