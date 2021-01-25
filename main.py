@@ -25,6 +25,7 @@ def startListening():
                     print("button released")
                 if curr_state == 0:
                     print("button pressed")
+                pins[i][1] = curr_state
         time.sleep(0.02)
 
 if __name__ == "__main__":
