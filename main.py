@@ -5,28 +5,57 @@ class Windgong:
 
     def __init__(self):
         self.running = True
-        self.pins = []
+        self.button_pins = {}
         self.motor_pins = []
-        self.timeout = time.time() + 5
+        # 0: Red_pin, 1: Green_pin
+        self.led_pins = []
+        # 0: off, 1: red, 2: green
+        self.led_state = 0
+        self.timeout = None
+        self.holdtime = None
+        self.target = None
 
         GPIO.setmode(GPIO.BCM)
     
-    def createButton(self, channel):
+    def createButton(self, name, channel):
         # the state can be '0' (if button pressed) or '1' (if button released)
         button_state = 1
-        self.pins.append([channel, button_state])
+        self.button_pins[name] = { "channel": channel, "state": button_state }
 
         # set pin GPIO4 to be an input pin; this pin will read the button state
         # activate pull down for pin GPIO4
         GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     
     def createMotor(self, pin1, pin2, pin3, pin4):
-        motorpins = [pin1, pin2, pin3, pin4]
-        for pin in motorpins:
+        pins = [pin1, pin2, pin3, pin4]
+        for pin in pins:
             self.motor_pins.append(pin)
             GPIO.setup(pin, GPIO.OUT)
             # Set all motor pins to low
             GPIO.output(pin, GPIO.LOW)
+    
+    def createLED(self, red_pin, green_pin):
+        pins = [red_pin, green_pin]
+        for pin in pins:
+            self.led_pins.append(pin)
+            GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, GPIO.LOW)
+        self.led_state = 0
+    
+    def setLED(self, color):
+        if color == "green":
+            GPIO.output(self.led_pins[0], GPIO.HIGH)
+            GPIO.output(self.led_pins[1], GPIO.LOW)
+            self.led_state = 2
+        if color == "red":
+            GPIO.output(self.led_pins[1], GPIO.HIGH)
+            GPIO.output(self.led_pins[0], GPIO.LOW)
+            self.led_state = 1
+        if color == "off":
+            GPIO.output(self.led_pins[0], GPIO.HIGH)
+            GPIO.output(self.led_pins[0], GPIO.LOW)
+            self.led_state = 0
+
 
     """
     @param clockwise: true for clockwise rotation, false for counter clockwise
@@ -70,57 +99,86 @@ class Windgong:
                 time.sleep(2 / 1000)
 
     def checkButton(self):
-        for i in range(len(self.pins)):
+        for button in self.button_pins:
             # read the current button state by reading pin GPIO4 on the Raspberry PI
-            curr_state = GPIO.input(self.pins[i][0])
-            if curr_state != self.pins[i][1]:
-
-                self.timeout = time.time() + 5
+            curr_state = GPIO.input(self.button_pins[button]["channel"])
+            if curr_state != self.button_pins[button]["state"]:
 
                 if curr_state == 1:
-                    print(f"GPIO{self.pins[i][0]} button released")
+                    print(f"button '{button}' has been released")
                     # Add event
+
                 if curr_state == 0:
-                    print(f"GPIO{self.pins[i][0]} button pressed")
-                    # Add event
-                self.pins[i][1] = curr_state
+                    print(f"button '{button}' has been pressed")
+                    
+
+                self.button_pins[button]["state"] = curr_state
     
     def checkTimeout(self):
-        if time.time() > self.timeout:
-            self.running = False
+        if self.timeout != None:
+            if time.time() > self.timeout:
+                self.timeout = None
+    
+    def setTarget(self, color):
+        if color != self.target:
+            timeout_time = 5
+            hold_time = 5 + timeout_time
+            self.timeout = time.time() + timeout_time
+            self.holdtime = time.time() + hold_time
+            self.setLED(color)
+            print(f"PRESS {color}")
     
     def gameLogic(self):
         # If the led is red
-        # rotateMotor(true)
-        # Check if the red button is pressed within time
+        if self.led_state == 1:
+            self.rotateMotor(True)
+            if not self.timeout:
+                if self.button_pins["rood"]["state"] == 0 and self.button_pins["groen"]["state"] != 0:
+                    print("HOLD")
+                    if time.time() > self.holdtime:
+                        self.setTarget("green")
+                else:
+                    print("Too late / Released too soon")
+                    self.running = False
 
         # If the led is green
-        # rotateMotor(false)
-        # Check if the green button is pressed within time
+        if self.led_state == 2:
+            self.rotateMotor(False)
+            if not self.timeout:
+                if self.button_pins["groen"]["state"] == 0 and self.button_pins["rood"]["state"] != 0:
+                    print("HOLD")
+                    if time.time() > self.holdtime:
+                        self.setTarget("red")
+                else:
+                    print("Too late / Released too soon")
+                    self.running = False
 
         return
     
     def startGame(self):
+        self.setTarget("red")
         while self.running:
             self.checkButton()
             self.gameLogic()
-            self.rotateMotor(True)
             self.checkTimeout()
             time.sleep(0.02)
         
-        print("TimeOut!")
+        print("Game Ended")
         GPIO.cleanup()
 
 if __name__ == "__main__":
     windgong = Windgong()
     # Red button
-    windgong.createButton(14)
+    windgong.createButton("rood", 14)
     # Green button
-    windgong.createButton(15)
+    windgong.createButton("groen", 15)
     # Blue button
-    windgong.createButton(4)
+    windgong.createButton("blauw", 4)
     
     # Motor
     windgong.createMotor(18,23,24,25)
+
+    # Led
+    windgong.createLED(27,22)
 
     windgong.startGame()
