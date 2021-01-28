@@ -6,6 +6,8 @@ from display import display
 class Windgong:
 
     def __init__(self):
+        self.display = display()
+        self.display.lcd_init()
         self.running = True
         self.button_pins = {}
         self.motor_pins = []
@@ -229,8 +231,6 @@ class Windgong:
         self.rotateMotor(self.clockwise)
 
     def startGame(self):
-        self.display = display()
-        self.display.lcd_init()
         self.setTarget("green")
         while self.running:
             self.checkButton()
