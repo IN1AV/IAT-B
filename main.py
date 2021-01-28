@@ -184,10 +184,10 @@ class Windgong:
             
             if self.holding:
                 # Reduce time it takes to switch led
-                self.minimum_delay -= 0.2
-                self.maximum_delay -= 0.4
+                self.minimum_delay /= 1.1
+                self.maximum_delay /= 1.1
                 # Reduce time the player has to hit correct button
-                self.time_to_hit_button -= 0.05
+                self.time_to_hit_button /= 1.1
                 self.times_hit += 1
                 self.reaction_time = self.timeout - time.time()
                 # Code here for point system based on reaction time
@@ -195,7 +195,7 @@ class Windgong:
                 print(f"Hits: {self.times_hit}, Points: {self.points}")
 
                 self.timeout = None
-                self.holdtime = time.time() + random.randint(self.minimum_delay, self.maximum_delay)
+                self.holdtime = time.time() + random.uniform(self.minimum_delay, self.maximum_delay)
                 # Key Debounce Time of 500ms
                 self.debouncetime = time.time() + 0.5
                 self.setLED("off")
