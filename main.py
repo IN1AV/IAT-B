@@ -98,15 +98,15 @@ class Windgong:
             seq = [
                 [1,1,0,0],
                 [0,1,1,0],
-                [0,0,0,0],
+                [0,0,1,1],
                 [1,0,0,1]
             ]
         else:
             seq = [
-                [0,0,1,1],
                 [1,0,0,1],
-                [1,1,1,1],
-                [0,1,1,0]
+                [0,0,1,1],
+                [0,1,1,0],
+                [1,1,0,0]
             ]
 
         if len(self.motor_pins) != 0:
@@ -121,7 +121,7 @@ class Windgong:
                 GPIO.output(self.motor_pins[3], seq[i][3])
 
                 # Set delay till next sequence
-                time.sleep(2 / 1000)
+                time.sleep(1 / 1000)
                 # time.sleep(5/1000)
 
     def checkButton(self):
