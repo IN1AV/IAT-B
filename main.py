@@ -51,17 +51,17 @@ class Windgong:
     def setLED(self, color):
         if color == "green":
             self.clockwise = True
-            GPIO.output(self.led_pins[0], GPIO.HIGH)
-            GPIO.output(self.led_pins[1], GPIO.LOW)
+            GPIO.output(self.led_pins[0], GPIO.LOW)
+            GPIO.output(self.led_pins[1], GPIO.HIGH)
             self.led_state = 2
         if color == "red":
             self.clockwise = False
-            GPIO.output(self.led_pins[1], GPIO.HIGH)
-            GPIO.output(self.led_pins[0], GPIO.LOW)
+            GPIO.output(self.led_pins[0], GPIO.HIGH)
+            GPIO.output(self.led_pins[1], GPIO.LOW)
             self.led_state = 1
         if color == "off":
-            GPIO.output(self.led_pins[0], GPIO.HIGH)
-            GPIO.output(self.led_pins[1], GPIO.HIGH)
+            GPIO.output(self.led_pins[0], GPIO.LOW)
+            GPIO.output(self.led_pins[1], GPIO.LOW)
             self.led_state = 0
 
         print(f"LED COLOR: {color}")
@@ -121,7 +121,7 @@ class Windgong:
                 GPIO.output(self.motor_pins[3], seq[i][3])
 
                 # Set delay till next sequence
-                time.sleep(1 / 1000)
+                time.sleep(5 / 1000)
                 # time.sleep(5/1000)
 
     def checkButton(self):
