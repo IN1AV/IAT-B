@@ -205,7 +205,7 @@ class Windgong:
             self.checkTimeout()
 
             # ~60 updates per second
-            time.sleep(0.02)
+            # time.sleep(0.02)
         
         print("Game Ended")
         GPIO.cleanup()
