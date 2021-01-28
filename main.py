@@ -17,6 +17,7 @@ class Windgong:
         self.target = None
         self.holding = False
         self.clockwise = True
+        self.previous_color = None
 
         GPIO.setmode(GPIO.BCM)
     
@@ -50,18 +51,20 @@ class Windgong:
     # Atleast that is what i think
     def setLED(self, color):
         if color == "green":
+            self.previous_color = "green"
             self.clockwise = True
-            GPIO.output(self.led_pins[0], GPIO.LOW)
-            GPIO.output(self.led_pins[1], GPIO.HIGH)
-            self.led_state = 2
-        if color == "red":
-            self.clockwise = False
             GPIO.output(self.led_pins[0], GPIO.HIGH)
             GPIO.output(self.led_pins[1], GPIO.LOW)
+            self.led_state = 2
+        if color == "red":
+            self.previous_color = "red"
+            self.clockwise = False
+            GPIO.output(self.led_pins[1], GPIO.HIGH)
+            GPIO.output(self.led_pins[0], GPIO.LOW)
             self.led_state = 1
         if color == "off":
-            GPIO.output(self.led_pins[0], GPIO.LOW)
-            GPIO.output(self.led_pins[1], GPIO.LOW)
+            GPIO.output(self.led_pins[0], GPIO.HIGH)
+            GPIO.output(self.led_pins[1], GPIO.HIGH)
             self.led_state = 0
 
         print(f"LED COLOR: {color}")
@@ -121,7 +124,7 @@ class Windgong:
                 GPIO.output(self.motor_pins[3], seq[i][3])
 
                 # Set delay till next sequence
-                time.sleep(5 / 1000)
+                time.sleep(1 / 1000)
                 # time.sleep(5/1000)
 
     def checkButton(self):
@@ -183,7 +186,11 @@ class Windgong:
             if time.time() > self.holdtime:
                 color = ["green", "red"]
                 self.holdtime = None
-                self.setTarget(color[random.randint(0, 1)])
+                if self.previous_color = "green":
+                    self.setTarget("red")
+                else:
+                    self.setTarget("green")
+                # self.setTarget(color[random.randint(0, 1)])
                 self.holding = False
             else:
                 if time.time() > self.debouncetime:
@@ -205,7 +212,7 @@ class Windgong:
             self.checkTimeout()
 
             # ~60 updates per second
-            # time.sleep(0.02)
+            time.sleep(0.02)
         
         print("Game Ended")
         GPIO.cleanup()
