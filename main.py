@@ -6,12 +6,16 @@ from display import display
 class Windgong:
 
     def __init__(self):
-        self.running = True
         self.button_pins = {}
         self.motor_pins = []
         # 0: Red_pin, 1: Green_pin
         self.led_pins = []
         # 0: off, 1: red, 2: green
+        self.restart()
+        
+    
+    def restart(self):
+        self.running = True
         self.led_state = 0
         self.timeout = None
         self.holdtime = None
@@ -242,6 +246,11 @@ class Windgong:
         print("Game Ended")
         self.display.lcd_string("Game over",self.display.LCD_LINE_1)
         self.display.lcd_string(f"Score: {int(self.points * 100)}",self.display.LCD_LINE_2)
+        while True:
+            if self.button_pins["blauw"]["state"] != 0:
+                self.restart()
+                self.startGame()
+                break
         GPIO.cleanup()
 
 if __name__ == "__main__":
