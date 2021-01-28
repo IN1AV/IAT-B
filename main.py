@@ -20,7 +20,7 @@ class Windgong:
         self.previous_color = None
 
         self.points = 0
-
+        self.reaction_time = 0
         GPIO.setmode(GPIO.BCM)
     
     def createButton(self, name, channel):
@@ -177,12 +177,15 @@ class Windgong:
                     self.running = False
             
             if self.holding:
+                self.reaction_time = self.timeout - time.time()
+                self.points = self.points + self.reaction_time
+                # Code here for point system based on reaction time
+
                 self.timeout = None
                 self.holdtime = time.time() + random.randint(2, 5)
                 # Key Debounce Time of 500ms
                 self.debouncetime = time.time() + 0.5
                 self.setLED("off")
-                self.points = self.points + 1
 
 
         if self.timeout == None and self.holding:
