@@ -45,6 +45,9 @@ class Windgong:
             GPIO.output(pin, GPIO.LOW)
         self.led_state = 0
     
+    # HIGH = HIGH
+    # LOW = ON
+    # Atleast that is what i think
     def setLED(self, color):
         if color == "green":
             self.clockwise = True
@@ -58,7 +61,7 @@ class Windgong:
             self.led_state = 1
         if color == "off":
             GPIO.output(self.led_pins[0], GPIO.HIGH)
-            GPIO.output(self.led_pins[0], GPIO.LOW)
+            GPIO.output(self.led_pins[1], GPIO.HIGH)
             self.led_state = 0
 
         print(f"LED COLOR: {color}")
@@ -68,27 +71,42 @@ class Windgong:
     @param clockwise: true for clockwise rotation, false for counter clockwise
     """
     def rotateMotor(self, clockwise):
+        # if clockwise:
+        #     seq = [
+        #         [0,1,1,1],
+        #         [0,0,1,1],
+        #         [1,0,1,1],
+        #         [1,0,0,1],
+        #         [1,1,0,1],
+        #         [1,1,0,0],
+        #         [1,1,1,0],
+        #         [0,1,1,0]
+        #     ]
+        # else:
+        #     # seq = [
+        #     #     [1,0,0,0],
+        #     #     [1,1,0,0],
+        #     #     [0,1,0,0],
+        #     #     [0,1,1,0],
+        #     #     [0,0,1,0],
+        #     #     [0,0,1,1],
+        #     #     [0,0,0,1],
+        #     #     [1,0,0,1]
+        #     # ]
+
         if clockwise:
             seq = [
-                [0,1,1,1],
-                [0,0,1,1],
-                [1,0,1,1],
-                [1,0,0,1],
-                [1,1,0,1],
                 [1,1,0,0],
-                [1,1,1,0],
-                [0,1,1,0]
+                [0,1,1,0],
+                [0,0,0,0],
+                [1,0,0,1]
             ]
         else:
             seq = [
-                [1,0,0,0],
-                [1,1,0,0],
-                [0,1,0,0],
-                [0,1,1,0],
-                [0,0,1,0],
                 [0,0,1,1],
-                [0,0,0,1],
-                [1,0,0,1]
+                [1,0,0,1],
+                [1,1,1,1],
+                [0,1,1,0]
             ]
 
         if len(self.motor_pins) != 0:
@@ -104,6 +122,7 @@ class Windgong:
 
                 # Set delay till next sequence
                 time.sleep(2 / 1000)
+                # time.sleep(5/1000)
 
     def checkButton(self):
         for button in self.button_pins:
