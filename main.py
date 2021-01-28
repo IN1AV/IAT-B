@@ -19,6 +19,8 @@ class Windgong:
         self.clockwise = True
         self.previous_color = None
 
+        self.points = 0
+
         GPIO.setmode(GPIO.BCM)
     
     def createButton(self, name, channel):
@@ -180,6 +182,7 @@ class Windgong:
                 # Key Debounce Time of 500ms
                 self.debouncetime = time.time() + 0.5
                 self.setLED("off")
+                self.points = self.points + 1
 
 
         if self.timeout == None and self.holding:
