@@ -192,7 +192,7 @@ class Windgong:
                 self.times_hit += 1
                 self.reaction_time = self.timeout - time.time()
                 # Code here for point system based on reaction time
-                self.points = self.points + self.reaction_time * self.times_hit
+                self.points = self.points + abs(self.reaction_time * self.times_hit)
                 print(f"Hits: {self.times_hit}, Points: {self.points}")
 
                 self.timeout = None
