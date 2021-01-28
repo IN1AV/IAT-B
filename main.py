@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import random
+from display import display
 
 class Windgong:
 
@@ -224,12 +225,16 @@ class Windgong:
         self.rotateMotor(self.clockwise)
 
     def startGame(self):
+        self.display = display()
+        self.display.lcd_init()
         self.setTarget("green")
         while self.running:
             self.checkButton()
             self.gameLogic()
             self.checkTimeout()
-
+            color = ["Wait for color", "Press Red", "Press Green"]
+            self.display.lcd_string(f"{color[self.led_state]}",self.display.LCD_LINE_1)
+            self.display.lcd_string(f"Points {self.points}",self.display.LCD_LINE_2)
             # ~60 updates per second
             # time.sleep(0.02)
         
