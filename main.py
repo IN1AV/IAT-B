@@ -196,7 +196,7 @@ class Windgong:
                 print(f"Hits: {self.times_hit}, Points: {self.points}")
 
                 self.timeout = None
-                self.holdtime = time.time() + random.randint(self.minimum_delay, self.maximum_delay)
+                self.holdtime = time.time() + random.uniform(self.minimum_delay, self.maximum_delay)
                 # Key Debounce Time of 500ms
                 self.debouncetime = time.time() + 0.5
                 self.setLED("off")
@@ -233,12 +233,15 @@ class Windgong:
             self.gameLogic()
             self.checkTimeout()
             color = ["Wait for color", "Press Red", "Press Green"]
+            points = int(self.points * 100)
             self.display.lcd_string(f"{color[self.led_state]}",self.display.LCD_LINE_1)
-            self.display.lcd_string(f"Points {self.points}",self.display.LCD_LINE_2)
+            self.display.lcd_string(f"Points {points}",self.display.LCD_LINE_2)
             # ~60 updates per second
             # time.sleep(0.02)
         
         print("Game Ended")
+        self.display.lcd_string("Game over",self.display.LCD_LINE_1)
+        self.display.lcd_string(f"Score: {points}",self.display.LCD_LINE_2)
         GPIO.cleanup()
 
 if __name__ == "__main__":
