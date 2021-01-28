@@ -132,7 +132,7 @@ class Windgong:
                 GPIO.output(self.motor_pins[3], seq[i][3])
 
                 # Set delay till next sequence
-                time.sleep(5 / 1000)
+                time.sleep(0.005)
                 # time.sleep(5/1000)
 
     def checkButton(self):
@@ -164,6 +164,7 @@ class Windgong:
     def gameLogic(self):
         red_state = self.button_pins["rood"]["state"]
         green_state = self.button_pins["groen"]["state"]
+        self.rotateMotor(self.clockwise)
         # If the led is red
         if self.timeout != None:
             # red
@@ -221,8 +222,6 @@ class Windgong:
         if self.timeout == None and not self.holding :
             print("You were too late")
             self.running = False
-        
-        self.rotateMotor(self.clockwise)
 
     def startGame(self):
         self.display = display()
