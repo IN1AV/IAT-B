@@ -247,7 +247,10 @@ class Windgong:
         self.display.lcd_string("Game over",self.display.LCD_LINE_1)
         self.display.lcd_string(f"Score: {int(self.points * 100)}",self.display.LCD_LINE_2)
         while True:
-            if self.button_pins["blauw"]["state"] != 0:
+            self.checkButton()
+            # print(self.button_pins["blauw"]["state"], "in while loop")
+            if self.button_pins["blauw"]["state"] == 0:
+                # print(self.button_pins["blauw"]["state"], "in if statement")
                 self.restart()
                 self.startGame()
                 break
