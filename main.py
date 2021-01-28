@@ -19,6 +19,11 @@ class Windgong:
         self.clockwise = True
         self.previous_color = None
 
+        self.minimum_delay = 2
+        self.maximum_delay = 5
+        self.time_to_hit_button = 1
+        self.times_hit = 0
+
         self.points = 0
         self.reaction_time = 0
         GPIO.setmode(GPIO.BCM)
@@ -151,7 +156,7 @@ class Windgong:
                 self.timeout = None
     
     def setTarget(self, color):
-        self.timeout = time.time() + 1
+        self.timeout = time.time() + self.time_to_hit_button
         self.setLED(color)
         print(f"PRESS {color}")
     
@@ -164,6 +169,11 @@ class Windgong:
             if self.led_state == 1:
                 if red_state == 0 and green_state != 0:
                     self.holding = True
+                    self.minimum_delay -= 0.2
+                    self.maximum_delay -= 0.4
+                    self.time_to_hit_button -= 0.1
+                    self.times_hit += 1
+                    print(self.times_hit)
                 if green_state == 0:
                     print("You pressed the wrong button")
                     self.running = False
@@ -172,6 +182,11 @@ class Windgong:
             if self.led_state == 2:
                 if red_state != 0 and green_state == 0:
                     self.holding = True
+                    self.minimum_delay -= 0.2
+                    self.maximum_delay -= 0.4
+                    self.time_to_hit_button -= 0.05
+                    self.times_hit += 1
+                    print(self.times_hit)
                 if red_state == 0:
                     print("You pressed the wrong button")
                     self.running = False
@@ -182,7 +197,7 @@ class Windgong:
                 # Code here for point system based on reaction time
 
                 self.timeout = None
-                self.holdtime = time.time() + random.randint(2, 5)
+                self.holdtime = time.time() + random.randint(self.minimum_delay, self.maximum_delay)
                 # Key Debounce Time of 500ms
                 self.debouncetime = time.time() + 0.5
                 self.setLED("off")
