@@ -169,11 +169,6 @@ class Windgong:
             if self.led_state == 1:
                 if red_state == 0 and green_state != 0:
                     self.holding = True
-                    self.minimum_delay -= 0.2
-                    self.maximum_delay -= 0.4
-                    self.time_to_hit_button -= 0.1
-                    self.times_hit += 1
-                    print(self.times_hit)
                 if green_state == 0:
                     print("You pressed the wrong button")
                     self.running = False
@@ -182,19 +177,22 @@ class Windgong:
             if self.led_state == 2:
                 if red_state != 0 and green_state == 0:
                     self.holding = True
-                    self.minimum_delay -= 0.2
-                    self.maximum_delay -= 0.4
-                    self.time_to_hit_button -= 0.05
-                    self.times_hit += 1
-                    print(self.times_hit)
+
                 if red_state == 0:
                     print("You pressed the wrong button")
                     self.running = False
             
             if self.holding:
+                # Reduce time it takes to switch led
+                self.minimum_delay -= 0.2
+                self.maximum_delay -= 0.4
+                # Reduce time the player has to hit correct button
+                self.time_to_hit_button -= 0.05
+                self.times_hit += 1
                 self.reaction_time = self.timeout - time.time()
-                self.points = self.points + self.reaction_time
                 # Code here for point system based on reaction time
+                self.points = self.points + self.reaction_time * self.times_hit
+                print(f"Hits: {self.times_hit}, Points: {self.points}")
 
                 self.timeout = None
                 self.holdtime = time.time() + random.randint(self.minimum_delay, self.maximum_delay)
