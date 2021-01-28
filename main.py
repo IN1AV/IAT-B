@@ -244,8 +244,8 @@ class Windgong:
             # time.sleep(0.02)
         
         print("Game Ended")
-        self.display.lcd_string("Game over",self.display.LCD_LINE_1)
-        self.display.lcd_string(f"Score: {int(self.points * 100)}",self.display.LCD_LINE_2)
+        self.display.lcd_string("Blue button: Restart",self.display.LCD_LINE_1)
+        self.display.lcd_string(f"Final score: {int(self.points * 100)}",self.display.LCD_LINE_2)
         while True:
             if self.button_pins["blauw"]["state"] != 0:
                 self.restart()
